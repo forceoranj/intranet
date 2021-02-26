@@ -1,0 +1,14 @@
+<mat-card class="mat-elevation-z12">
+  <h3>Merci de t'être inscrit !</h3>
+  <div *ngIf="authService.user as user">
+    <p class="text-center">Nous avons envoyé un email de confirmation à <strong>{{user.email}}</strong>.</p>
+    <p class="text-center">Il ne te reste plus qu'à le consulter et à cliquer sur le lien de validation.</p>
+    <button mat-raised-button color="primary" (click)="authService.sendEmailVerification()">Renvoyer l'email de validation</button>
+  </div>
+
+  <br>
+  <br>
+  <br>
+
+  Retour ? <a mat-raised-button routerLink="/login">S'identifier</a>
+</mat-card>

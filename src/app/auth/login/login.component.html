@@ -1,0 +1,34 @@
+
+<mat-card class="mat-elevation-z12">
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput placeholder="pat@example.com" [formControl]="email" #userEmail required>
+    <button mat-icon-button matSuffix tabindex="-1">
+      <mat-icon>email</mat-icon>
+    </button>
+    <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Mot de passe</mat-label>
+    <input matInput [formControl]="password" [type]="hide ? 'password' : 'text'" #userPassword required>
+    <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Cacher le mot de passe'" [attr.aria-pressed]="hide">
+      <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+    </button>
+    <mat-error *ngIf="password.invalid">{{getErrorMessage()}}</mat-error>
+  </mat-form-field>
+
+  <div>
+    <button mat-raised-button color="primary" (click)="authService.login(userEmail.value, userPassword.value)">J'y vais</button>
+
+    <br>
+    <br>
+
+    <a mat-raised-button routerLink="/forgot-password">Mot de passe oublié ?</a>
+    <br>
+    <br>
+    <br>
+
+    Pas encore de compte ? <a mat-raised-button routerLink="/register">S'inscrire</a>
+  </div>
+</mat-card>
