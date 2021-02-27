@@ -16,10 +16,9 @@
 </p>
 
 <p align="center">
-
-  <a href="https://discord.gg/zhMUSYzE">
-    <img src="https://img.shields.io/discord/463752820026376202.svg?logo=discord&logoColor=fff&label=Discord&color=7389d8" alt="Discord conversation" />
-  </a> (#entraide-site-forceorange)
+  <a href="https://discord.com/channels/392300215513645056/677508996713938946">
+    <img src="https://img.shields.io/discord/392300215513645056.svg?logo=discord&logoColor=fff&label=Discord&color=7389d8" alt="Discord conversation" />
+  </a>
 </p>
 
 <hr>
