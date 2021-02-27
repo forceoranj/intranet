@@ -92,4 +92,4 @@ Join the conversation and help the community.
 [angularmaterial]: https://material.angular.io/
 [changelog]: CHANGELOG.md
 [codeofconduct]: CODE_OF_CONDUCT.md
-[discord]: https://discord.gg/zhMUSYzE
+[discord]: https://discord.com/channels/392300215513645056/677508996713938946
