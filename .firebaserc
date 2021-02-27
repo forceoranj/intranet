@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "forceoranj"
+  },
+  "targets": {
+    "forceoranj": {
+      "hosting": {
+        "intranet": [
+          "forceoranj"
+        ]
+      }
+    }
+  }
+}
