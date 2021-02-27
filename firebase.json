@@ -14,8 +14,8 @@
   },
   "hosting": [
     {
-      "target": "angular-tour-of-heroes",
-      "public": "dist/angular-tour-of-heroes",
+      "target": "intranet",
+      "public": "dist/intranet",
       "ignore": [
         "**/.*"
       ],

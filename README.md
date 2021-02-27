@@ -1,7 +1,7 @@
 <h1 align="center">Intranet of the <i>Paris est Ludique</i> board game festival.</h1>
 
 <p align="center">
-  <i>This intranet empowers users with roles that give them access to specific pages/features.
+  <i>This intranet empowers users with roles that give them access to specific pages/features.</i>
   <br>
   Built with <a href="https://www.angular.io"><strong>Angular</strong></a> with a free-plan <a href="https://firebase.google.com"><strong>Firebase</strong></a> hosting in mind.
   <br>
