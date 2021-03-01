@@ -39,8 +39,8 @@ cd intranet
 # install the repo with npm
 npm install
 
-# install the functions repo with npm
-( cd functions ; npm install )
+# install and build the functions repo with npm
+( cd functions ; npm install ; npm run build )
 ```
 
 ## Development
