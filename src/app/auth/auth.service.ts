@@ -3,13 +3,15 @@ import { Router } from  "@angular/router";
 import { User } from  "../classes/user";
 import { AngularFireAuth } from  "@angular/fire/auth";
 import { ToastrService } from 'ngx-toastr';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   user: User;
-
+  roleChangeObserver: any;
+  
   constructor(
     private toastr: ToastrService,
     public auth: AngularFireAuth,
@@ -40,7 +42,7 @@ export class AuthService {
     }
 
   }
-  
+
   async logout() {
     this.auth.signOut();
     localStorage.removeItem('user');
@@ -74,5 +76,47 @@ export class AuthService {
   get isLoggedIn(): boolean {
     const user = JSON.parse(localStorage.getItem('user'));
     return (user !== null && user.emailVerified !== false) ? true : false;
+  }
+  get uid(): string {
+    const user = JSON.parse(localStorage.getItem('user'));
+    return user && user.uid;
+  }
+
+
+  onRoleChange = new Observable(observer => {
+    this.roleChangeObserver = observer;
+  });
+  onMenuChange = new Observable(observer => {
+    this.onRoleChange.subscribe((menu: any) => observer.next(this.getNewMenu()));
+  });
+
+  getNewMenu() {
+    return [
+      {
+        name: 'Fruit',
+        children: [
+          {name: 'Apple'},
+          {name: 'Banana'},
+          {name: 'Fruit loops'},
+        ]
+      }, {
+        name: 'Vegetables',
+        children: [
+          {
+            name: 'Green',
+            children: [
+              {name: 'Broccoli'},
+              {name: 'Brussels sprouts'},
+            ]
+          }, {
+            name: 'Orange',
+            children: [
+              {name: 'Pumpkins'},
+              {name: 'Carrots'},
+            ]
+          },
+        ]
+      },
+    ];
   }
 }

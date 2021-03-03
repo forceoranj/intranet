@@ -19,6 +19,7 @@ export class ProfileComponent implements OnInit {
   yearList: number[] = [2020, 2019, 2018, 2017, 2016];
   selectedFiles: any;
   fileUploadQueue: any;
+  photoFile: any;
 
   constructor(
     public crudApi: CrudService,  // CRUD API services
@@ -31,6 +32,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit() {
     this.crudApi.GetStudentsList();  // Call GetStudentsList() before main form is being called
     this.studenForm();              // Call student form when component is ready
+    this.onChanges();
   }
 
   // Reactive student form
@@ -39,7 +41,7 @@ export class ProfileComponent implements OnInit {
       firstname: ['', [Validators.required, Validators.minLength(2)]],
       lastname: ['', [Validators.required, Validators.minLength(2)]],
       mobile: ['', [Validators.required, Validators.pattern("(\\+|[0-9])[0-9] ?[0-9][0-9] ?[0-9][0-9] ?[0-9][0-9] ?[0-9][0-9]")]],
-      photo: ['', [Validators.required, Validators.minLength(2)]],
+      photo: ['', [Validators.required]],
       english: ['', []],
       spanish: ['', []],
       german: ['', []],
@@ -48,7 +50,30 @@ export class ProfileComponent implements OnInit {
       years: ['', []],
       adult: ['', [Validators.requiredTrue]],
     });
+    this.memberForm.setValue({
+      firstname: "pi",
+      lastname: "sc",
+      mobile: "0102030405",
+      photo: "",
+      english: false,
+      spanish: false,
+      german: false,
+      italian: false,
+      lsf: false,
+      years: "",
+      adult: false,
+    });
   }
+
+  onChanges(): void {
+  this.memberForm.valueChanges.subscribe(user => {
+    if (this.memberForm.invalid) {
+      return;
+    }
+    //else
+    this.setUserData(user);
+  });
+}
 
   // Accessing form control using getters
   get firstname() {
@@ -67,31 +92,32 @@ export class ProfileComponent implements OnInit {
     this.selectedFiles = event.target.files;
 }
 
-  // Reset student form's values
-  ResetForm() {
-    this.memberForm.reset();
+
+  upload(event) {
+    this.photoFile = event.target.files[0];
+    if (this.photoFile) {
+      this.crudApi.addMemberPhoto(this.authService.uid, this.photoFile);
+    }
   }
 
-  submitStudentData() {
-    this.crudApi.AddStudent(this.memberForm.value); // Submit student data using CRUD API
-    this.toastr.success(this.memberForm.controls['firstName'].value + ' successfully added!'); // Show success message when data is successfully submited
-    this.ResetForm();  // Reset form when clicked on reset button
-  };
-
-
-
-  SetUserData(user) {
-    const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
-    const userData: Member = {
-      uid: user.uid,
-      email: user.email,
+  setUserData(user) {
+    const member: Member = {
       firstname: user.firstname,
       lastname: user.lastname,
-      photo: user.photo,
-    }
-    return userRef.set(userData, {
-      merge: true
-    })
+      mobile: user.mobile,
+      years: "",  //TODO1
+
+      english: !!user.english || null,
+      spanish: !!user.spanish || null,
+      german: !!user.german || null,
+      italian: !!user.italian || null,
+      lsf: !!user.lsf || null,
+    };
+
+    console.log("member", member);
+    //console.log("NOT SENDING MEMBER");
+    this.crudApi.AddMember(this.authService.uid, member);
+    this.authService.roleChangeObserver.next();
   }
 
 }

@@ -1,7 +1,55 @@
 {
-  /* Visit https://firebase.google.com/docs/database/security to learn more about security rules. */
   "rules": {
-    ".read": false,
-    ".write": false
+    "users": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth.uid === $uid",
+        "profile": {
+          "firstname": {
+            ".validate": "newData.isString()"
+          },
+          "lastname": {
+            ".validate": "newData.isString()"
+          },
+          "mobile": {
+            ".validate": "newData.isString() && newData.val().matches(/(\\+|[0-9])[0-9] ?[0-9][0-9] ?[0-9][0-9] ?[0-9][0-9] ?[0-9][0-9]/)"
+          },
+          "photo": {
+            ".validate": "newData.isString()"
+          },
+          "years": {
+            ".validate": "newData.isString() && newData.val().matches(/([0-9]{4}(, [0-9]{4})*)?/)"
+          },
+          "english": {
+            ".validate": "!newData.exists() || newData.val() === true"
+          },
+          "spanish": {
+            ".validate": "!newData.exists() || newData.val() === true"
+          },
+          "german": {
+            ".validate": "!newData.exists() || newData.val() === true"
+          },
+          "italian": {
+            ".validate": "!newData.exists() || newData.val() === true"
+          },
+          "lsf": {
+            ".validate": "!newData.exists() || newData.val() === true"
+          },
+          "$other": {
+            ".validate": "false"
+          },
+        },
+        "roles": {
+          ".read": "auth.uid === $uid",
+          ".write": "root.child('admins').hasChild(auth.uid)"
+        },
+        "$other": {
+          ".validate": "false"
+        },
+      }
+    },
+    "admins": {
+      "$uid": {}
+    }
   }
 }

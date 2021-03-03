@@ -1,8 +1,12 @@
 rules_version = '2';
 service firebase.storage {
-  match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if request.auth!=null;
-    }
+  match /profiles/{imageId} {
+    allow read: if request.auth!=null;
+    allow write: if request.auth!=null
+    && request.resource.size < 5 * 1024 * 1024
+    && request.resource.contentType.matches('image/.*')
+    && (imageId.val() == request.auth.uid + ".jpg"
+    || imageId.val() == request.auth.uid + ".jpeg"
+    || imageId.val() == request.auth.uid + ".png");
   }
 }

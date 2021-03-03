@@ -1,57 +1,53 @@
-<mat-card class="mat-elevation-z12">
-  <form [formGroup]="memberForm">
-    <mat-form-field appearance="outline">
-      <mat-label>Prenom</mat-label>
-      <input matInput placeholder="prénom" formControlName="firstname" #firstname>
-      <mat-error *ngIf="memberForm.get('firstname').errors && memberForm.get('firstname').hasError('minlength')">Il faut un prénom plus long</mat-error>
-    </mat-form-field>
+<form [formGroup]="memberForm">
+  <mat-form-field appearance="outline">
+    <mat-label>Prénom</mat-label>
+    <input matInput placeholder="prénom" formControlName="firstname" #firstname>
+    <mat-error *ngIf="memberForm.get('firstname').errors && memberForm.get('firstname').hasError('minlength')">Il faut un prénom plus long</mat-error>
+  </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Nom</mat-label>
-      <input matInput placeholder="nom" formControlName="lastname" #lastname>
-      <mat-error *ngIf="memberForm.get('lastname').errors && memberForm.get('lastname').hasError('minlength')">Il faut un nom plus long</mat-error>
-    </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Nom</mat-label>
+    <input matInput placeholder="nom" formControlName="lastname" #lastname>
+    <mat-error *ngIf="memberForm.get('lastname').errors && memberForm.get('lastname').hasError('minlength')">Il faut un nom plus long</mat-error>
+  </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Téléphone</mat-label>
-      <input matInput placeholder="téléphone" formControlName="mobile" #mobile>
-      <button mat-icon-button matSuffix>
-        <mat-icon>phone</mat-icon>
-      </button>
-      <mat-error *ngIf="memberForm.get('mobile').errors && memberForm.get('mobile').hasError('pattern')">Ce n'est pas un numéro valide</mat-error>
-    </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Téléphone</mat-label>
+    <input matInput placeholder="téléphone" formControlName="mobile" #mobile>
+    <button mat-icon-button matSuffix tabindex="-1">
+      <mat-icon>phone</mat-icon>
+    </button>
+    <mat-error *ngIf="memberForm.get('mobile').errors && memberForm.get('mobile').hasError('pattern')">Ce n'est pas un numéro valide</mat-error>
+  </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Photo pour le trombinoscope</mat-label>
-      <ngx-mat-file-input formControlName="photo" placeholder="Photo pour le trombinoscope" ></ngx-mat-file-input>
-      <mat-icon matSuffix>folder</mat-icon>
-    </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Photo pour le trombinoscope</mat-label>
+    <ngx-mat-file-input formControlName="photo" placeholder="Photo pour le trombinoscope" (change)="upload($event)" accept=".png,.jpg,.jpeg" ></ngx-mat-file-input>
+    <mat-icon matSuffix>folder</mat-icon>
+  </mat-form-field>
 
-    <span>Langue(s) parlée(s) :</span><br>
-    &nbsp;<mat-checkbox formControlName="english"><img src="assets/english.png" style="width: 30px"></mat-checkbox>
-    &nbsp;<mat-checkbox formControlName="spanish"><img src="assets/spanish.png" style="width: 30px"></mat-checkbox>
-    &nbsp;<mat-checkbox formControlName="german"><img src="assets/german.png" style="width: 30px"></mat-checkbox>
-    &nbsp;<mat-checkbox formControlName="italian"><img src="assets/italian.png" style="width: 30px"></mat-checkbox>
-    &nbsp;<mat-checkbox formControlName="lsf"><img src="assets/lsf.png" style="width: 30px"></mat-checkbox>
-    <br><br>
+  <span>Langue(s) parlée(s) :</span><br>
+  &nbsp;<mat-checkbox formControlName="english"><img src="assets/english.png" style="width: 30px"></mat-checkbox>
+  &nbsp;<mat-checkbox formControlName="spanish"><img src="assets/spanish.png" style="width: 30px"></mat-checkbox>
+  &nbsp;<mat-checkbox formControlName="german"><img src="assets/german.png" style="width: 30px"></mat-checkbox>
+  &nbsp;<mat-checkbox formControlName="italian"><img src="assets/italian.png" style="width: 30px"></mat-checkbox>
+  &nbsp;<mat-checkbox formControlName="lsf"><img src="assets/lsf.png" style="width: 30px"></mat-checkbox>
+  <br><br>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Années de présence</mat-label>
-      <mat-select formControlName="years" multiple>
-        <mat-option *ngFor="let year of yearList" [value]="year">{{year}}</mat-option>
-      </mat-select>
-    </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Années de présence (TODO)</mat-label>
+    <mat-select formControlName="years" multiple>
+      <mat-option *ngFor="let year of yearList" [value]="year">{{year}}</mat-option>
+    </mat-select>
+  </mat-form-field>
 
-    <mat-checkbox formControlName="adult">Majeur au 26 juin 2021</mat-checkbox>
-    <br><br>
-
+  <mat-checkbox formControlName="adult">Majeur au 26 juin 2021</mat-checkbox>
+  <br><br>
 
 
-
-    <span *ngIf="memberForm.invalid">Il manque encore certaines informations...</span>
-    <span *ngIf="!memberForm.invalid">C'est bon on a toutes les infos on va te trouver une équipe et te prévenir quand ce sera le cas !<br>(TODO: Oui bon il manque le choix d'équipe etc...)</span>
-  </form>
-</mat-card>
+  <span *ngIf="memberForm.invalid">Il manque encore certaines informations...</span>
+  <span *ngIf="!memberForm.invalid">C'est bon on a toutes les infos on va te trouver une équipe et te prévenir quand ce sera le cas !<br>(TODO: Oui bon il manque le choix d'équipe etc...)</span>
+</form>
 
 
 

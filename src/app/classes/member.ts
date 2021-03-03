@@ -1,7 +1,12 @@
 export interface Member {
-   uid: string;
-   email: string;
    lastname: string;
    firstname: string;
-   photo: string;
+   mobile: string;
+   years: string;
+   //Languages
+   english?: true;
+   spanish?: true;
+   german?: true;
+   italian?: true;
+   lsf?: true;
 }

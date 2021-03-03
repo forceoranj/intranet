@@ -16,11 +16,11 @@ import { ProfileComponent } from './user/profile/profile.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/profile', pathMatch: 'full' },
-  { path: 'login',component:  LoginComponent},
-  { path: 'register', component:  RegisterComponent },
-  { path: 'forgot-password', component:  ForgotPasswordComponent },
-  { path: 'verify-email', component:  VerifyEmailComponent },
-  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'login',component:  LoginComponent, data: {title: "Identification"}},
+  { path: 'register', component:  RegisterComponent, data: {title: "Inscription"}},
+  { path: 'forgot-password', component:  ForgotPasswordComponent, data: {title: "Réinitialisation du mot de passe"}},
+  { path: 'verify-email', component:  VerifyEmailComponent, data: {title: "Verification de l'email"}},
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard], data: {title: "Profil pour devenir bénévole"} },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'detail/:id', component: HeroDetailComponent },
   { path: 'heroes', component: HeroesComponent },
