@@ -38,8 +38,8 @@ export class CrudService {
   }
 
   addMemberPhoto(uid: string, photo: File) {
-    if (photo.size >= 5 * 1024 * 1024) {
-      this.toastr.error("Seules les images de moins de 5MO sont supportées.")
+    if (photo.size >= 100 * 1024) {
+      this.toastr.error("Seules les images de moins de 100 KO sont supportées.")
       return;
     }
     const extensionMatch = photo.name.match(/\.(jpg|jpeg|png)/i);

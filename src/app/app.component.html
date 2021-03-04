@@ -43,7 +43,7 @@
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
     <li class="mat-tree-node">
       <!-- use a disabled button to provide padding for tree leaf -->
-      <div style="width: 1em;"></div><button mat-flat-button>{{node.name}}</button>
+      <div style="width: 1em;"></div><button mat-raised-button color="primary" (click)="node.func ? node.func() : closeMenu()" [routerLink]="node.link ? node.link : null" [disabled]="node.link == currentPath">{{node.name}}</button>
 
     </li>
   </mat-tree-node>
@@ -52,8 +52,8 @@
     <li>
       <div class="mat-tree-node">
         <button mat-button matTreeNodeToggle style="padding: 0;">
-          <mat-icon class="mat-icon-rtl-mirror">
-            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+          <mat-icon class="mat-icon-rtl-mirror" [style.visibility]="treeControl.isExpanded(node) ? 'hidden' : 'visible'">
+            expand_more
           </mat-icon>
           {{node.name}}
         </button>

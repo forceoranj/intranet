@@ -61,7 +61,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { HeroDetailComponent } from './hero-detail/hero-detail.component';
 import { HeroesComponent } from './heroes/heroes.component';
 import { HeroSearchComponent } from './hero-search/hero-search.component';
-import { ProfileComponent } from './user/profile/profile.component';
+import { ProfileComponent } from './users/profile/profile.component';
+import { KnowledgeComponent } from './volunteers/knowledge/knowledge.component';
 
 
 
@@ -144,6 +145,7 @@ const config = {
     HeroDetailComponent,
     HeroSearchComponent,
     ProfileComponent,
+    KnowledgeComponent,
 
     LoginComponent,
     RegisterComponent,

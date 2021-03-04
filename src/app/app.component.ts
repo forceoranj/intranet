@@ -1,5 +1,5 @@
 import {MediaMatcher} from '@angular/cdk/layout';
-import {ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import {NestedTreeControl} from '@angular/cdk/tree';
@@ -17,10 +17,11 @@ interface FoodNode {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnDestroy {
+export class AppComponent implements OnInit, OnDestroy {
   title: string;
   private _mobileQueryListener: () => void;
   mobileQuery: MediaQueryList;
+  @ViewChild('snav') snav;
 
   treeControl = new NestedTreeControl<FoodNode>(node => node.children);
   dataSource = new MatTreeNestedDataSource<FoodNode>();
@@ -35,8 +36,7 @@ export class AppComponent implements OnDestroy {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
-    this.dataSource.data = [];
-
+    this.setMenu([]);
   }
 
   ngOnDestroy(): void {
@@ -52,13 +52,23 @@ export class AppComponent implements OnDestroy {
     .subscribe((event) => {
       this.title = this.getTitle(this.router.routerState, this.router.routerState.root).join(' | ');
     });
-    this.authService.onMenuChange.subscribe(async (menu: any) => this.dataSource.data = menu);
-    // firebase.auth().onAuthStateChanged(function(user) {
-    // if (user) {
-    //   // User is signed in.
-    // } else {
-    //   // No user is signed in.
-    // }
+    this.authService.onMenuChange.subscribe(async (menu: any) => {
+      this.setMenu(menu);
+      this.treeControl.expandAll();
+    });
+    this.setMenu(this.authService.getMenu());
+    this.treeControl.expandAll();
+  }
+
+
+
+  closeMenu(): void {
+    this.snav && this.snav.toggle()
+  }
+
+  setMenu(menu) {
+    this.dataSource.data = menu;
+    this.treeControl.dataNodes = menu;  //Necessary for expandAll to work
   }
 
   getTitle(state, parent) {
@@ -71,6 +81,10 @@ export class AppComponent implements OnDestroy {
       data.push(... this.getTitle(state, state.firstChild(parent)));
     }
     return data;
+  }
+
+  get currentPath(): string {
+    return window.location.pathname;
   }
 
   hasChild = (_: number, node: FoodNode) => !!node.children && node.children.length > 0;

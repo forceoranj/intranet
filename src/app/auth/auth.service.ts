@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 export class AuthService {
   user: User;
   roleChangeObserver: any;
-  
+
   constructor(
     private toastr: ToastrService,
     public auth: AngularFireAuth,
@@ -21,9 +21,11 @@ export class AuthService {
     if (user){
       this.user = user;
       localStorage.setItem('user', JSON.stringify(this.user));
+
     } else {
       localStorage.setItem('user', null);
     }
+    this.roleChangeObserver.next();
   })
   }
 
@@ -36,7 +38,7 @@ export class AuthService {
       }
       //else
       localStorage.setItem('user', JSON.stringify(result.user));
-      this.router.navigate(['profile']);
+      this.router.navigate(['']);
     } catch(e) {
       console.log(e);
     }
@@ -77,6 +79,10 @@ export class AuthService {
     const user = JSON.parse(localStorage.getItem('user'));
     return (user !== null && user.emailVerified !== false) ? true : false;
   }
+  get isVolunteer(): boolean {
+    const rawVolunteer = localStorage.getItem('volunteer');
+    return rawVolunteer !== null;
+  }
   get uid(): string {
     const user = JSON.parse(localStorage.getItem('user'));
     return user && user.uid;
@@ -87,36 +93,43 @@ export class AuthService {
     this.roleChangeObserver = observer;
   });
   onMenuChange = new Observable(observer => {
-    this.onRoleChange.subscribe((menu: any) => observer.next(this.getNewMenu()));
+    this.onRoleChange.subscribe((menu: any) => observer.next(this.getMenu()));
   });
 
-  getNewMenu() {
-    return [
-      {
-        name: 'Fruit',
-        children: [
-          {name: 'Apple'},
-          {name: 'Banana'},
-          {name: 'Fruit loops'},
-        ]
-      }, {
-        name: 'Vegetables',
+  getMenu() {
+    const menu = [];
+    if (this.isLoggedIn) {
+      menu.push({
+        name: 'Profil',
+        link: "/users/profile"
+      });
+    }
+
+    if (this.isVolunteer) {
+      menu.push({
+        name: 'Bénévole (visible quand profil rempli)',
         children: [
           {
-            name: 'Green',
-            children: [
-              {name: 'Broccoli'},
-              {name: 'Brussels sprouts'},
-            ]
-          }, {
-            name: 'Orange',
-            children: [
-              {name: 'Pumpkins'},
-              {name: 'Carrots'},
-            ]
+            name: "Choix d'équipe (todo)",
+          },{
+            name: 'Connaissances ludiques',
+            link: "/volunteers/knowledge",
+          },{
+            name: 'Autre page todo2'
           },
         ]
-      },
-    ];
+      });
+    }
+
+    if (this.isLoggedIn) {
+      menu.push({
+        name: 'Déconnexion',
+        func: () => {
+          this.logout();
+        }
+      });
+    }
+
+    return menu;
   }
 }

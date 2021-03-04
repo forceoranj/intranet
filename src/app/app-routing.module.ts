@@ -12,15 +12,17 @@ import { VerifyEmailComponent } from './auth/verify-email/verify-email.component
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { HeroDetailComponent } from './hero-detail/hero-detail.component';
 import { HeroesComponent } from './heroes/heroes.component';
-import { ProfileComponent } from './user/profile/profile.component';
+import { ProfileComponent } from './users/profile/profile.component';
+import { KnowledgeComponent } from './volunteers/knowledge/knowledge.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/profile', pathMatch: 'full' },
+  { path: '', redirectTo: 'users/profile', pathMatch: 'full' },
   { path: 'login',component:  LoginComponent, data: {title: "Identification"}},
   { path: 'register', component:  RegisterComponent, data: {title: "Inscription"}},
   { path: 'forgot-password', component:  ForgotPasswordComponent, data: {title: "Réinitialisation du mot de passe"}},
   { path: 'verify-email', component:  VerifyEmailComponent, data: {title: "Verification de l'email"}},
-  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard], data: {title: "Profil pour devenir bénévole"} },
+  { path: 'users/profile', component: ProfileComponent, canActivate: [AuthGuard], data: {title: "Profil pour devenir bénévole"} },
+  { path: 'volunteers/knowledge', component: KnowledgeComponent, canActivate: [AuthGuard], data: {title: "Connaissance des jeux"} },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'detail/:id', component: HeroDetailComponent },
   { path: 'heroes', component: HeroesComponent },
