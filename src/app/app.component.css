@@ -1,51 +1,72 @@
-.example-container {
-  display: flex;
-  flex-direction: column;
+.app-container {
+  width: 100%;
+  height: 100%;
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
 }
 
-.example-is-mobile .example-toolbar {
+.is-mobile .toolbar {
   position: fixed;
   /* Make sure the toolbar will stay on top of the content as it scrolls past. */
   z-index: 2;
 }
 
-.example-app-name {
+.app-name {
   margin-left: 8px;
 }
 
-.example-sidenav-container {
+.sidenav-container {
   /* When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
      causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. */
   flex: 1;
 }
 
-.example-is-mobile .example-sidenav-container {
+.is-mobile .sidenav-container {
   /* When the sidenav is fixed, don't constrain the height of the sidenav container. This allows the
      `<body>` to be our scrolling element for mobile layouts. */
   flex: 1 0 auto;
 }
 
-
-
-.example-tree-invisible {
-  display: none;
+.tree {
+  padding: 10px 10px 0 10px;
 }
 
-.example-tree ul,
-.example-tree li {
+.tree ul,
+.tree li {
   margin-top: 0;
   margin-bottom: 0;
   list-style-type: none;
 }
+.tree ul {
+  margin-left: 25px;
+  padding-inline-start: 20px;
+}
+
+.menu-button {
+  padding: 0;
+}
+
 
 .menu-card {
   min-width: 150px;
+  background: #fff; padding-right: 10px;
 }
 .content-card {
   max-width: 414px;
+}
+
+.is-mobile mat-sidenav-container {
+  margin-top: 56px;
+}
+.is-mobile mat-nav-list {
+  padding-right: 10px;
+}
+
+
+.invisible {
+  display: none;
+}
+
+.biggest {
+  width: 100%;
+  height: 100%;
 }

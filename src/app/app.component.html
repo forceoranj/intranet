@@ -1,13 +1,12 @@
-<div *ngIf="mobileQuery.matches" [class.example-is-mobile]="true" style="width: 100%; height: 100%; position: absolute">
-  <mat-toolbar color="primary" class="example-toolbar">
-    <button mat-icon-button (click)="snav.toggle()" [style.display]="dataSource.data.length ? 'block' : 'none'"><mat-icon>menu</mat-icon></button>
-    <h4 class="example-app-name">{{title}}</h4>
+<div *ngIf="mobileQuery.matches" class="app-container is-mobile">
+  <mat-toolbar color="primary" class="toolbar">
+    <button mat-icon-button (click)="snav.toggle()" [class.invisible]="!dataSource.data.length"><mat-icon>menu</mat-icon></button>
+    <h4 class="app-name">{{title}}</h4>
   </mat-toolbar>
 
-  <mat-sidenav-container class="example-sidenav-container mat-elevation-z12"
-  [style.marginTop.px]="56">
-    <mat-sidenav #snav [mode]="'over'" [fixedInViewport]="true" fixedTopGap="56" class="menu-card">
-      <mat-nav-list style="padding-right: 10px;">
+  <mat-sidenav-container class="sidenav-container mat-elevation-z12">
+    <mat-sidenav #snav mode="over" [fixedInViewport]="true" fixedTopGap="56" class="menu-card">
+      <mat-nav-list>
         <div *ngIf="true;then menu"></div>
       </mat-nav-list>
     </mat-sidenav>
@@ -21,10 +20,10 @@
 </div>
 
 
-<div *ngIf="!mobileQuery.matches" style="width: 100%; height: 100%">
-  <div style="width: 100%; height: 100%" fxLayout="row" fxLayoutAlign="center center">
+<div *ngIf="!mobileQuery.matches" class="app-container">
+  <div class="biggest" fxLayout="row" fxLayoutAlign="center center">
     <div fxLayout="row" fxLayoutAlign="top top" class="mat-elevation-z12">
-      <div style="background: #fff; padding-right: 10px;" [style.display]="dataSource.data.length ? 'block' : 'none'" class="menu-card">
+      <div [class.invisible]="!dataSource.data.length" class="menu-card">
         <div *ngIf="true;then menu"></div>
       </div>
       <div>
@@ -38,60 +37,28 @@
 </div>
 
 <ng-template #menu>
-  <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="example-tree">
-  <!-- This is the tree node template for leaf nodes -->
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
-    <li class="mat-tree-node">
-      <!-- use a disabled button to provide padding for tree leaf -->
-      <div style="width: 1em;"></div><button mat-raised-button color="primary" (click)="node.func ? node.func() : closeMenu()" [routerLink]="node.link ? node.link : null" [disabled]="node.link == currentPath">{{node.name}}</button>
+  <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="tree">
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+      <li>
+        <button mat-raised-button color="primary" (click)="node.func ? node.func() : closeMenu()" [routerLink]="node.link ? node.link : null" [disabled]="node.link == currentPath">{{node.name}}</button>
 
-    </li>
-  </mat-tree-node>
-  <!-- This is the tree node template for expandable nodes -->
-  <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
-    <li>
-      <div class="mat-tree-node">
-        <button mat-button matTreeNodeToggle style="padding: 0;">
-          <mat-icon class="mat-icon-rtl-mirror" [style.visibility]="treeControl.isExpanded(node) ? 'hidden' : 'visible'">
-            expand_more
-          </mat-icon>
-          {{node.name}}
-        </button>
-      </div>
-      <ul [class.example-tree-invisible]="!treeControl.isExpanded(node)" style="padding-inline-start: 20px;">
-        <ng-container matTreeNodeOutlet></ng-container>
-      </ul>
-    </li>
-  </mat-nested-tree-node>
-</mat-tree>
+      </li>
+    </mat-tree-node>
+
+    <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+      <li>
+        <div class="mat-tree-node">
+          <button mat-button matTreeNodeToggle class="menu-button">
+            <mat-icon class="mat-icon-rtl-mirror" [style.visibility]="treeControl.isExpanded(node) ? 'hidden' : 'visible'">
+              expand_more
+            </mat-icon>
+            {{node.name}}
+          </button>
+        </div>
+        <ul [class.invisible]="!treeControl.isExpanded(node)">
+          <ng-container matTreeNodeOutlet></ng-container>
+        </ul>
+      </li>
+    </mat-nested-tree-node>
+  </mat-tree>
 </ng-template>
-
-
-<!-- <div style="width: 100%; height: 100%">
-  <div style="width: 100%; height: 100%" fxLayout="column" fxLayoutAlign="center center">
-    <router-outlet></router-outlet>
-  </div>
-</div> -->
-<!-- <mat-sidenav-container>
-    <mat-sidenav #start>
-        <mat-nav-list>
-            <a mat-list-item routerLink="/dashboard">Dashboard</a>
-            <a mat-list-item routerLink="/heroes">Heroes</a>
-        </mat-nav-list>
-        <hr>
-        <button mat-button (click)="start.close()">CLOSE</button>
-    </mat-sidenav>
-    <mat-toolbar color="primary">
-        <button mat-icon-button (click)="start.open()">
-            <mat-icon>menu</mat-icon>
-        </button> {{ title }}
-    </mat-toolbar>
-    <div class="main-content"> -->
-
-
-
-
-
-
-    <!-- </div>
-</mat-sidenav-container> -->

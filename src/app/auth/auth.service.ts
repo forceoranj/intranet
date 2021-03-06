@@ -3,14 +3,16 @@ import { Router } from  "@angular/router";
 import { User } from  "../classes/user";
 import { AngularFireAuth } from  "@angular/fire/auth";
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   user: User;
-  roleChangeObserver: any;
+  roleChangeObserver: Subscriber<any>;
+  authedAwaiters: (() => void)[] = [];
+
 
   constructor(
     private toastr: ToastrService,
@@ -21,7 +23,9 @@ export class AuthService {
     if (user){
       this.user = user;
       localStorage.setItem('user', JSON.stringify(this.user));
-
+      for (let awaiter of this.authedAwaiters) {
+        awaiter();
+      }
     } else {
       localStorage.setItem('user', null);
     }
@@ -31,6 +35,7 @@ export class AuthService {
 
   async login(email: string, password: string) {
     try {
+      await this.auth.setPersistence('local');
       const result = await this.auth.signInWithEmailAndPassword(email, password);
       if (!result.user.emailVerified) {
         this.toastr.info("Un email vous a été envoyé. Il faut cliquer sur son lien pour finir l'inscription.");
@@ -88,7 +93,14 @@ export class AuthService {
     return user && user.uid;
   }
 
-
+  async whenAuthed() {
+    if (this.user) {
+      return;
+    }
+    return new Promise<void>(resolve => {
+      this.authedAwaiters.push(resolve);
+    });
+  }
   onRoleChange = new Observable(observer => {
     this.roleChangeObserver = observer;
   });

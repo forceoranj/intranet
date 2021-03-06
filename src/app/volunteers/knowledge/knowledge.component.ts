@@ -29,14 +29,14 @@ export class KnowledgeComponent implements OnInit {
     public authService: AuthService,
   ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.crudApi.GetStudentsList();  // Call GetStudentsList() before main form is being called
-    this.studenForm();              // Call student form when component is ready
+    await this.studenForm();              // Call student form when component is ready
     this.onChanges();
   }
 
   // Reactive student form
-  studenForm() {
+  async studenForm() {
     this.memberForm = this.fb.group({
       firstname: ['', [Validators.required, Validators.minLength(2)]],
       lastname: ['', [Validators.required, Validators.minLength(2)]],
@@ -50,11 +50,12 @@ export class KnowledgeComponent implements OnInit {
       years: ['', []],
       adult: ['', [Validators.requiredTrue]],
     });
-    this.memberForm.setValue({
+
+    const defaultMember = {
       firstname: "pi",
       lastname: "sc",
       mobile: "0102030405",
-      photo: "",
+      photo: "",  //TODO1 doesn't set anything, does it?
       english: false,
       spanish: false,
       german: false,
@@ -62,7 +63,10 @@ export class KnowledgeComponent implements OnInit {
       lsf: false,
       years: "",
       adult: false,
-    });
+    };
+    const member = await this.crudApi.getMember(this.authService.uid) || defaultMember;
+    console.log("member", member);
+    this.memberForm.setValue(member);
   }
 
   onChanges(): void {
@@ -116,7 +120,7 @@ export class KnowledgeComponent implements OnInit {
 
     console.log("member", member);
     //console.log("NOT SENDING MEMBER");
-    this.crudApi.AddMember(this.authService.uid, member);
+    this.crudApi.addMember(this.authService.uid, member);
     this.authService.roleChangeObserver.next();
   }
 

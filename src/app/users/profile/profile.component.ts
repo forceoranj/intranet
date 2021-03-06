@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import * as _ from 'lodash-es';
 import { AuthService } from "../../auth/auth.service";
 import { CrudService } from '../../services/crud.service';    // CRUD services API
 import { Member } from '../../classes/member';
@@ -29,14 +30,14 @@ export class ProfileComponent implements OnInit {
     public authService: AuthService,
   ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.crudApi.GetStudentsList();  // Call GetStudentsList() before main form is being called
-    this.studenForm();              // Call student form when component is ready
+    await this.studenForm();              // Call student form when component is ready
     this.onChanges();
   }
 
   // Reactive student form
-  studenForm() {
+  async studenForm() {
     this.memberForm = this.fb.group({
       firstname: ['', [Validators.required, Validators.minLength(2)]],
       lastname: ['', [Validators.required, Validators.minLength(2)]],
@@ -50,11 +51,12 @@ export class ProfileComponent implements OnInit {
       years: ['', []],
       adult: ['', [Validators.requiredTrue]],
     });
-    this.memberForm.setValue({
+
+    const defaultMember = {
       firstname: "pi",
       lastname: "sc",
       mobile: "0102030405",
-      photo: "",
+      photo: "",  //TODO1 doesn't set anything, does it?
       english: false,
       spanish: false,
       german: false,
@@ -62,20 +64,25 @@ export class ProfileComponent implements OnInit {
       lsf: false,
       years: "",
       adult: false,
-    });
+    };
+    console.log("this.authService.uid", this.authService.uid);
+    const dbMember = await this.crudApi.getMember(this.authService.uid) || {};
+    const member = _.defaults(dbMember, defaultMember)
+    console.log("member", member);
+    this.memberForm.setValue(member);
   }
 
   onChanges(): void {
-  this.memberForm.valueChanges.subscribe(user => {
-    if (this.memberForm.invalid) {
-      localStorage.removeItem('volunteer');
-    }
-    else {
-      this.setUserData(user);
-    }
-    this.authService.roleChangeObserver.next();
-  });
-}
+    this.memberForm.valueChanges.subscribe(user => {
+      if (this.memberForm.invalid) {
+        localStorage.removeItem('volunteer');
+      }
+      else {
+        this.setUserData(user);
+      }
+      this.authService.roleChangeObserver.next();
+    });
+  }
 
   // Accessing form control using getters
   get firstname() {
@@ -92,7 +99,7 @@ export class ProfileComponent implements OnInit {
 
   selectFile(event) {
     this.selectedFiles = event.target.files;
-}
+  }
 
 
   upload(event) {
@@ -116,7 +123,7 @@ export class ProfileComponent implements OnInit {
       lsf: !!user.lsf || null,
     };
 
-    this.crudApi.AddMember(this.authService.uid, member);
+    this.crudApi.addMember(this.authService.uid, member);
     this.authService.roleChangeObserver.next();
     localStorage.setItem('volunteer', JSON.stringify(member));
   }

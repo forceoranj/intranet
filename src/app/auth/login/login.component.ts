@@ -10,7 +10,7 @@ import { AuthService } from "../auth.service";
 export class LoginComponent implements OnInit {
 
   constructor(
-    public authService: AuthService
+    public authService: AuthService,
   ) { }
 
   email = new FormControl('', [Validators.required, Validators.email]);

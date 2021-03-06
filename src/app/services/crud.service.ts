@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { AngularFireDatabase, AngularFireList, AngularFireObject } from '@angular/fire/database';  // Firebase modules for Database, Data list and Single object
 import { AngularFireStorage } from '@angular/fire/storage';  // Firebase modules for Database, Data list and Single object
+import { AuthService } from "../auth/auth.service";
 import { ToastrService } from 'ngx-toastr'; // Alert message using NGX toastr
 import { Member } from '../classes/member';
 export interface Student {
@@ -23,11 +24,13 @@ export class CrudService {
   constructor(
     private db: AngularFireDatabase,
     private photoDb: AngularFireStorage,
+    public authService: AuthService,
     public toastr: ToastrService,
   ) { }
 
   // Create Student
-  AddMember(uid: string, member: Member) {
+  async addMember(uid: string, member: Member): Promise<void> {
+    await this.authService.whenAuthed();
     const userData = {
       profile: member,
     };
@@ -37,7 +40,8 @@ export class CrudService {
     // this.membersRef.push(userData);
   }
 
-  addMemberPhoto(uid: string, photo: File) {
+  async addMemberPhoto(uid: string, photo: File): Promise<void> {
+    await this.authService.whenAuthed();
     if (photo.size >= 100 * 1024) {
       this.toastr.error("Seules les images de moins de 100 KO sont supportées.")
       return;
@@ -55,9 +59,10 @@ export class CrudService {
   }
 
   // Fetch Single Student Object
-  GetStudent(id: string) {
-    this.memberRef = this.db.object('students-list/' + id);
-    return this.memberRef;
+  async getMember(uid: string): Promise<Member> {
+    await this.authService.whenAuthed();
+    const snapshot = await this.db.database.ref('users/' + uid).get();
+    return snapshot.exists() ? snapshot.val().profile : null;
   }
 
   // Fetch Students List
