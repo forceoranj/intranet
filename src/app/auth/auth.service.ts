@@ -35,7 +35,6 @@ export class AuthService {
 
   async login(email: string, password: string) {
     try {
-      await this.auth.setPersistence('local');
       const result = await this.auth.signInWithEmailAndPassword(email, password);
       if (!result.user.emailVerified) {
         this.toastr.info("Un email vous a été envoyé. Il faut cliquer sur son lien pour finir l'inscription.");
