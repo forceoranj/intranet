@@ -42,11 +42,22 @@ npm install
 
 ## Development
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+### Live-reload and emulated Firebase
+Run `firebase emulators:exec --only auth,database --ui "ng serve"` to start the emulators, build and host.
+Navigate to http://localhost:4200
+The app will automatically reload if you modify the source files.<br>
+Please note that **Firebase Storage can't be emulated**! So profile pictures won't work.
+Access the Firebase Emulator console through http://localhost:4001 to see authenticated users and the Realtime Database.
 
-For the same with Firebase support and no auto reload:<br>
-Build for dev: `ng build --watch`<br>
-Run locally: `firebase serve`
+
+### Live-reload and production Firebase
+
+Run `ng serve --configuration=noemulation` to build and host.
+Navigate to http://localhost:4200
+The app will automatically reload if you modify the source files.
+
+
+### File editors
 
 Edit files with one of these HTML/CSS/TypeScript editors:
 * [Atom](https://atom.io/) with [TypeScript plugin](https://atom.io/packages/ide-typescript)
@@ -57,8 +68,9 @@ Edit files with one of these HTML/CSS/TypeScript editors:
 ## Production
 
 Run `ng build --prod` to build the project for production. The build artifacts will be stored in the `dist/` directory.<br>
-Run `firebase deploy` to deploy the build to Firebase.
+Run `firebase deploy` to deploy the build to Firebase. Make sure you have the right Firebase access before :)
 
+<!---
 ## Running tests
 
 ### Unit tests (TODO)
@@ -74,6 +86,10 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 
 TODO Doc on the architecture.
 
+## Changelog (TODO)
+
+[Learn about the latest improvements][changelog].
+-->
 
 ## Ecosystem
 
@@ -85,10 +101,6 @@ TODO Doc on the architecture.
 - [Angular Flex-Layout][angular-flex-layout]
 
 
-## Changelog (TODO)
-
-[Learn about the latest improvements][changelog].
-
 ## Contributing
 
 ### Want to Help?
@@ -98,12 +110,13 @@ Want to file a bug, contribute some code, or improve documentation? Excellent! J
 ### Code of Conduct
 
 Help us keep this project open and inclusive. Please read and follow our [Code of Conduct][codeofconduct].
-
+<!---
 ## Community
 
 Join the conversation and help the community.
 - [Discord][discord]
-
+-->
+<br>
 
 **Love this intranet? Give our repo a star :star: :arrow_up:.**
 

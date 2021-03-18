@@ -44,7 +44,12 @@ export class AuthService {
       localStorage.setItem('user', JSON.stringify(result.user));
       this.router.navigate(['']);
     } catch(e) {
-      console.log(e);
+      if (e.code === "auth/user-not-found") {
+        this.toastr.error("Cet email est inconnu.");
+      }
+      else {
+        this.toastr.error(e.message, 'Erreur');
+      }
     }
 
   }
@@ -114,25 +119,25 @@ export class AuthService {
         name: 'Profil',
         link: "/users/profile"
       });
-    }
 
-    if (this.isVolunteer) {
-      menu.push({
-        name: 'Bénévole (visible quand profil rempli)',
-        children: [
-          {
-            name: "Choix d'équipe (todo)",
-          },{
-            name: 'Connaissances ludiques',
-            link: "/volunteers/knowledge",
-          },{
-            name: 'Autre page todo2'
-          },
-        ]
-      });
-    }
 
-    if (this.isLoggedIn) {
+      if (this.isVolunteer) {
+        menu.push({
+          name: 'Bénévole (visible quand profil rempli)',
+          children: [
+            {
+              name: "Choix d'équipe (todo)",
+            },{
+              name: 'Connaissances ludiques',
+              link: "/volunteers/knowledge",
+            },{
+              name: 'Autre page todo2'
+            },
+          ]
+        });
+      }
+
+
       menu.push({
         name: 'Déconnexion',
         func: () => {
@@ -140,7 +145,6 @@ export class AuthService {
         }
       });
     }
-
     return menu;
   }
 }

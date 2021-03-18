@@ -4,6 +4,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import {NestedTreeControl} from '@angular/cdk/tree';
 import {MatTreeNestedDataSource} from '@angular/material/tree';
+import * as _ from 'lodash-es';
 import { AuthService } from "./auth/auth.service";
 
 interface FoodNode {
@@ -54,7 +55,12 @@ export class AppComponent implements OnInit, OnDestroy {
     });
     this.authService.onMenuChange.subscribe(async (menu: any) => {
       this.setMenu(menu);
-      this.treeControl.expandAll();
+      if (_.isEmpty(menu)) {
+        this.closeMenu();
+      }
+      else {
+        this.treeControl.expandAll();
+      }
     });
     this.setMenu(this.authService.getMenu());
     this.treeControl.expandAll();
@@ -63,7 +69,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
   closeMenu(): void {
-    this.snav && this.snav.toggle()
+    this.snav && this.snav.close()
   }
 
   setMenu(menu) {
