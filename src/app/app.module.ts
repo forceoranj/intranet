@@ -5,7 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
-import { environment } from '../environments/environment';
+import { environment, firebaseConfig } from '../environments/environment';
 import { InMemoryDataService } from './in-memory-data.service';
 
 
@@ -63,8 +63,9 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { HeroDetailComponent } from './hero-detail/hero-detail.component';
 import { HeroesComponent } from './heroes/heroes.component';
 import { HeroSearchComponent } from './hero-search/hero-search.component';
+import { UsersComponent } from './admins/users/users.component';
 import { ProfileComponent } from './users/profile/profile.component';
-import { KnowledgeComponent } from './volunteers/knowledge/knowledge.component';
+import { KnowledgeComponent } from './members/knowledge/knowledge.component';
 
 
 
@@ -105,33 +106,6 @@ const materialModules = [
   FlexLayoutModule,
 ];
 
-// const config = {
-//   apiKey: "AIzaSyA0wfti670ANrEq6N7H_f4YG_ZdsYBCndk",
-//   authDomain: environment.firebaseEmulator
-//   ? "localhost:9099"
-//   : "forceoranj.firebaseapp.com",
-//   databaseURL: environment.firebaseEmulator
-//   ? "http://localhost:9000/?ns=forceoranj-default-rtdb"
-//   : "https://forceoranj-default-rtdb.europe-west1.firebasedatabase.app",
-//   projectId: "forceoranj",
-//   storageBucket: "forceoranj.appspot.com",
-//   messagingSenderId: "308769634451",
-//   appId: "1:308769634451:web:c2aaa11fce42e6d7b0b566"
-// };
-
-const config = environment.firebaseEmulator ? {
-  apiKey: "AIzaSyA0wfti670ANrEq6N7H_f4YG_ZdsYBCndk",
-  authDomain: "localhost:9099",
-  databaseURL: "http://localhost:9000/?ns=forceoranj-default-rtdb",
-} : {
-  apiKey: "AIzaSyA0wfti670ANrEq6N7H_f4YG_ZdsYBCndk",
-  authDomain: "forceoranj.firebaseapp.com",
-  databaseURL: "https://forceoranj-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "forceoranj",
-  storageBucket: "forceoranj.appspot.com",
-  messagingSenderId: "308769634451",
-  appId: "1:308769634451:web:c2aaa11fce42e6d7b0b566"
-};
 
 @NgModule({
   imports: [
@@ -141,7 +115,7 @@ const config = environment.firebaseEmulator ? {
     AppRoutingModule,
     HttpClientModule,
     ...materialModules,
-    AngularFireModule.initializeApp(config),
+    AngularFireModule.initializeApp(firebaseConfig),
     AngularFireAuthModule,
 
     // The HttpClientInMemoryWebApiModule module intercepts HTTP requests
@@ -164,6 +138,7 @@ const config = environment.firebaseEmulator ? {
     HeroesComponent,
     HeroDetailComponent,
     HeroSearchComponent,
+    UsersComponent,
     ProfileComponent,
     KnowledgeComponent,
 

@@ -7,10 +7,14 @@ import { AuthService } from "../auth.service";
   styleUrls: ['./verify-email.component.css']
 })
 export class VerifyEmailComponent implements OnInit {
+  emailToVerify: string;
 
   constructor(
     public authService: AuthService
-  ) { }
+  ) {
+    authService.emailToVerify()
+    .then(emailToVerify => this.emailToVerify = emailToVerify);
+  }
 
   ngOnInit(): void {
   }

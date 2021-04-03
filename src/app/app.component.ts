@@ -5,7 +5,9 @@ import { filter, map } from 'rxjs/operators';
 import {NestedTreeControl} from '@angular/cdk/tree';
 import {MatTreeNestedDataSource} from '@angular/material/tree';
 import * as _ from 'lodash-es';
-import { AuthService } from "./auth/auth.service";
+import { MenuService } from "./services/menu.service";
+import { CrudService } from './services/crud.service';
+import { Menus } from './classes/menu';
 
 interface FoodNode {
   name: string;
@@ -32,12 +34,13 @@ export class AppComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private media: MediaMatcher,
     private router: Router,
-    public authService: AuthService,
+    public menuService: MenuService,
+    public crudService: CrudService,
   ) {
-    this.mobileQuery = media.matchMedia('(max-width: 600px)');
-    this._mobileQueryListener = () => changeDetectorRef.detectChanges();
+    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+    this._mobileQueryListener = () => this.changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
-    this.setMenu([]);
+    this.setMenus([]);
   }
 
   ngOnDestroy(): void {
@@ -50,20 +53,30 @@ export class AppComponent implements OnInit, OnDestroy {
       filter((event) => event instanceof NavigationEnd),
       map(() => this.router)
     )
-    .subscribe((event) => {
+    .subscribe(async (event) => {
       this.title = this.getTitle(this.router.routerState, this.router.routerState.root).join(' | ');
+
+      const user = await this.crudService.getUser();
+      const menus = await this.menuService.getMenus(user);
+      this.updateMenus(menus);
     });
-    this.authService.onMenuChange.subscribe(async (menu: any) => {
-      this.setMenu(menu);
-      if (_.isEmpty(menu)) {
-        this.closeMenu();
-      }
-      else {
-        this.treeControl.expandAll();
-      }
+
+    this.menuService.onChange.subscribe(async (asyncMenus: Promise<Menus>) => {
+      const menus = await asyncMenus;
+      this.updateMenus(menus);
     });
-    this.setMenu(this.authService.getMenu());
-    this.treeControl.expandAll();
+  }
+
+
+
+  updateMenus(menus: Menus): void {
+    this.setMenus(menus);
+    if (_.isEmpty(menus)) {
+      this.closeMenu();
+    }
+    else {
+      this.treeControl.expandAll();
+    }
   }
 
 
@@ -72,9 +85,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.snav && this.snav.close()
   }
 
-  setMenu(menu) {
-    this.dataSource.data = menu;
-    this.treeControl.dataNodes = menu;  //Necessary for expandAll to work
+  setMenus(menus: Menus) {
+    this.dataSource.data = menus;
+    this.treeControl.dataNodes = menus;  //Necessary for expandAll to work
   }
 
   getTitle(state, parent) {

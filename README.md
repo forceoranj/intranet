@@ -24,7 +24,6 @@
 <hr>
 
 ## Install
-
 - Install [Node.js] which includes [Node Package Manager][npm]
 - Install [git][git]
 
@@ -40,25 +39,24 @@ cd intranet
 npm install
 ```
 
+
 ## Development
 
-### Live-reload and emulated Firebase
-Run `firebase emulators:exec --only auth,database --ui "ng serve"` to start the emulators, build and host.
+#### Live-reload and emulated Firebase
+Run `npm run emu` to start the emulators, build and host.
 Navigate to http://localhost:4200
 The app will automatically reload if you modify the source files.<br>
 Please note that **Firebase Storage can't be emulated**! So profile pictures won't work.
 Access the Firebase Emulator console through http://localhost:4001 to see authenticated users and the Realtime Database.
 
 
-### Live-reload and production Firebase
-
-Run `ng serve --configuration=noemulation` to build and host.
+#### Live-reload and production Firebase
+Run `npm run noemu` to build and host the server with access to the production Firebase services.
 Navigate to http://localhost:4200
 The app will automatically reload if you modify the source files.
 
 
-### File editors
-
+#### File editors
 Edit files with one of these HTML/CSS/TypeScript editors:
 * [Atom](https://atom.io/) with [TypeScript plugin](https://atom.io/packages/ide-typescript)
 * [Visual Studio Code](https://code.visualstudio.com/)
@@ -69,6 +67,7 @@ Edit files with one of these HTML/CSS/TypeScript editors:
 
 Run `ng build --prod` to build the project for production. The build artifacts will be stored in the `dist/` directory.<br>
 Run `firebase deploy` to deploy the build to Firebase. Make sure you have the right Firebase access before :)
+Run `npm run deploy` to perform both.
 
 <!---
 ## Running tests

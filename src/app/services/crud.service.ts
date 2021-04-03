@@ -1,10 +1,16 @@
 import { Injectable } from '@angular/core';
+import * as _ from 'lodash-es';
+import { Observable, Subscriber } from 'rxjs';
 
-import { AngularFireDatabase, AngularFireList, AngularFireObject } from '@angular/fire/database';  // Firebase modules for Database, Data list and Single object
-import { AngularFireStorage } from '@angular/fire/storage';  // Firebase modules for Database, Data list and Single object
+import { AngularFireDatabase, AngularFireList, AngularFireObject } from '@angular/fire/database';
+import { DatabaseReference } from '@angular/fire/database/interfaces';
+import { AngularFireStorage } from '@angular/fire/storage';
 import { AuthService } from "../auth/auth.service";
-import { ToastrService } from 'ngx-toastr'; // Alert message using NGX toastr
-import { Member } from '../classes/member';
+import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../environments/environment';
+import { Profile } from '../classes/profile';
+import { Roles } from '../classes/roles';
+import { DBUser } from '../classes/user';
 export interface Student {
   $key: string;
   firstName: string;
@@ -17,10 +23,13 @@ export interface Student {
 })
 
 export class CrudService {
-  membersRef: AngularFireList<any>;    // Reference to Student data list, its an Observable
-  memberRef: AngularFireObject<any>;   // Reference to Student object, its an Observable too
+  profilesRef: AngularFireList<any>;
+  profileRef: AngularFireObject<any>;
+  snapshot: DatabaseReference;
+  userObserver: Subscriber<DBUser>;
+  user: DBUser;
 
-  // Inject AngularFireDatabase Dependency in Constructor
+
   constructor(
     private db: AngularFireDatabase,
     private photoDb: AngularFireStorage,
@@ -28,20 +37,27 @@ export class CrudService {
     public toastr: ToastrService,
   ) { }
 
-  // Create Student
-  async addMember(uid: string, member: Member): Promise<void> {
-    await this.authService.whenAuthed();
-    const userData = {
-      profile: member,
-    };
-    this.db.database.ref('users/' + uid).set(userData);
-    //this.db.object('users/' + uid).update(userData);
-    // this.membersRef = this.db.list('users');
-    // this.membersRef.push(userData);
+
+  async setProfile(profile?: Profile, uid?: string): Promise<void> {
+    uid ||= await this.authService.uid;
+    const dbProfile = JSON.parse(JSON.stringify(profile));
+    console.log("dbProfile in setProfile", JSON.stringify(dbProfile));
+    this.db.database.ref(`users/${uid}/profile`).set(dbProfile);
   }
 
-  async addMemberPhoto(uid: string, photo: File): Promise<void> {
-    await this.authService.whenAuthed();
+
+  async setRoles(roles?: Roles, uid?: string): Promise<void> {
+    uid ||= await this.authService.uid;
+    let dbRoles = null;
+    if (!_.isEmpty(roles)) {
+      dbRoles = _.pickBy(roles);
+    }
+    console.log("dbRoles in setRoles", JSON.stringify(dbRoles));
+    this.db.database.ref(`users/${uid}/roles`).set(dbRoles);
+  }
+
+  async setProfilePhoto(photo: File, uid?: string): Promise<void> {
+    uid ||= await this.authService.uid;
     if (photo.size >= 100 * 1024) {
       this.toastr.error("Seules les images de moins de 100 KO sont supportées.")
       return;
@@ -54,26 +70,56 @@ export class CrudService {
     const extension = extensionMatch[0].toLowerCase();
     const storageFilename = '/profiles/' + uid + extension;
     console.log("storageFilename", storageFilename);
-    const ref = this.photoDb.ref(storageFilename);
-    ref.put(photo);
+    if (environment.production) {
+      const ref = this.photoDb.ref(storageFilename);
+      ref.put(photo);
+    }
   }
 
-  // Fetch Single Student Object
-  async getMember(uid: string): Promise<Member> {
-    await this.authService.whenAuthed();
-    const snapshot = await this.db.database.ref('users/' + uid).get();
-    return snapshot.exists() ? snapshot.val().profile : null;
+
+  async getUser(uid?: string): Promise<DBUser> {
+    uid ||= await this.authService.uid;
+    if (!uid) {
+      return;
+    }
+    console.log("uid in getUser", uid);
+    if (this.snapshot) {
+      return this.user;
+    }
+    //else
+    this.snapshot = await this.db.database.ref('users/' + uid);
+    return new Promise<DBUser>(resolve => {
+      this.snapshot.on('value', (snapshot) => {
+        this.user = snapshot.exists() && snapshot.val() || {};
+        _.defaults(this.user, {roles: {}});
+        this.userObserver?.next(this.user);
+        resolve(this.user);
+      });
+    });
   }
 
-  // Fetch Students List
+
+  //TODO1 is userObserver crushed each time onUserChange is called?
+  onUserChange = new Observable<DBUser>(observer => {
+    this.userObserver = observer;
+  });
+
+
+  async getAdminUid(): Promise<string> {
+    const snapshot = await this.db.database.ref('admins/').get();
+    return snapshot.exists() ? snapshot.val() : "";
+  }
+
+
+
   GetStudentsList() {
-    this.membersRef = this.db.list('users');
-    return this.membersRef;
+    this.profilesRef = this.db.list('users');
+    return this.profilesRef;
   }
 
-  // Update Student Object
+
   UpdateStudent(student: Student) {
-    this.memberRef.update({
+    this.profileRef.update({
       firstName: student.firstName,
       lastName: student.lastName,
       email: student.email,
@@ -81,10 +127,20 @@ export class CrudService {
     })
   }
 
-  // Delete Student Object
+
   DeleteStudent(id: string) {
-    this.memberRef = this.db.object('students-list/'+id);
-    this.memberRef.remove();
+    this.profileRef = this.db.object('students-list/'+id);
+    this.profileRef.remove();
   }
 
+  async becomeAdmin(): Promise<void> {
+    const uid = await this.authService.uid;
+
+    await this.db.database.ref('admins/'+ uid).set(true);
+
+    const userData = await this.getUser() || {};
+    const roles: Roles = userData.roles || {};
+    roles.admin = true;
+    this.setRoles(roles);
+  }
 }

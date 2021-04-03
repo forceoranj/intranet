@@ -1,47 +1,75 @@
 import { Injectable } from '@angular/core';
 import { Router } from  "@angular/router";
+import * as _ from 'lodash-es';
 import { User } from  "../classes/user";
 import { AngularFireAuth } from  "@angular/fire/auth";
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscriber } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  user: User;
-  roleChangeObserver: Subscriber<any>;
-  authedAwaiters: (() => void)[] = [];
-
+  public user: User;
+  onChange: Observable<boolean>;  //True if authed
+  authed: boolean;
+  currentUser: any;
 
   constructor(
     private toastr: ToastrService,
     public auth: AngularFireAuth,
     public router:  Router
   ) {
-    this.auth.authState.subscribe(user => {
-    if (user){
-      this.user = user;
-      localStorage.setItem('user', JSON.stringify(this.user));
-      for (let awaiter of this.authedAwaiters) {
-        awaiter();
-      }
-    } else {
-      localStorage.setItem('user', null);
-    }
-    this.roleChangeObserver.next();
-  })
+    console.log("auth.authState.subscribe init")
+    this.auth.authState.subscribe(currentUser => {
+      console.log("auth.authState.subscribe called", currentUser)
+      this.updateAuthStatus(currentUser);
+    });
+
+    this.onChange = new Observable<boolean>(subscriber => {
+      console.log("authService onChange called")
+      subscriber.next(this.updateAuthStatus(this.currentUser));
+    });
+
+    this.auth.currentUser
+    .then(currentUser => this.updateAuthStatus(currentUser));
   }
+
+
+  updateAuthStatus(currentUser: any): boolean {
+    console.log("whenAuthed: auth changed", currentUser);
+    this.currentUser = currentUser;
+
+    if (currentUser) {
+      if (currentUser.emailVerified) {
+        console.log("whenAuthed: just calling after auth changed");
+        this.authed = true;
+      }
+      else {
+        console.log("whenAuthed: email yet to verify");
+        this.authed = false;
+      }
+    }
+    else {
+      console.log("deauthed");
+      this.authed = false;
+    }
+
+    return this.authed;
+  }
+
 
   async login(email: string, password: string) {
     try {
+      console.log("login called");
       const result = await this.auth.signInWithEmailAndPassword(email, password);
+      console.log("result", result);
       if (!result.user.emailVerified) {
         this.toastr.info("Un email vous a été envoyé. Il faut cliquer sur son lien pour finir l'inscription.");
         return;
       }
       //else
-      localStorage.setItem('user', JSON.stringify(result.user));
+      this.updateAuthStatus(await this.auth.currentUser)
       this.router.navigate(['']);
     } catch(e) {
       if (e.code === "auth/user-not-found") {
@@ -56,13 +84,12 @@ export class AuthService {
 
   async logout() {
     this.auth.signOut();
-    localStorage.removeItem('user');
     this.router.navigate(['login']);
   }
 
   async register(email: string, password: string) {
     try {
-      const result = await this.auth.createUserWithEmailAndPassword(email, password);
+      await this.auth.createUserWithEmailAndPassword(email, password);
       this.router.navigate(['verify-email']);
     } catch(e) {
       if (e.code === "auth/email-already-in-use") {
@@ -84,67 +111,47 @@ export class AuthService {
     this.toastr.success('Email de réinitialisation de mot de passe envoyé !');
   }
 
-  get isLoggedIn(): boolean {
-    const user = JSON.parse(localStorage.getItem('user'));
-    return (user !== null && user.emailVerified !== false) ? true : false;
-  }
-  get isVolunteer(): boolean {
-    const rawVolunteer = localStorage.getItem('volunteer');
-    return rawVolunteer !== null;
-  }
-  get uid(): string {
-    const user = JSON.parse(localStorage.getItem('user'));
-    return user && user.uid;
+  get isVerifiedUser(): Promise<boolean> {
+    return (async () => {
+      console.log("isVerifiedUser");
+      if (!await this.onAuth()) {
+        console.log("isVerifiedUser false");
+        return false;
+      }
+      //else
+      return (await this.auth.currentUser).emailVerified !== false;
+    })();
   }
 
-  async whenAuthed() {
-    if (this.user) {
-      return;
+  get isLoggedIn(): Promise<boolean> { //TODO1 replace by isUser in roles.service
+    return (async () => {
+      const user = await this.auth.currentUser;
+      return (user !== null && user.emailVerified !== false) ? true : false;
+    })();
+  }
+
+  async emailToVerify(): Promise<string> {
+    return (await this.auth.currentUser).email;
+  }
+
+  get uid(): Promise<string> {
+    return (async () => {
+      const user = await this.auth.currentUser;
+      return user && user.uid || "";
+    })();
+  }
+
+  async onAuth(): Promise<boolean> {
+    if (this.authed !== null) {
+      return this.authed;
     }
-    return new Promise<void>(resolve => {
-      this.authedAwaiters.push(resolve);
+    console.log("whenAuthed: registering");
+    return new Promise<boolean>(resolve => {
+      this.onChange.subscribe((authed) => {
+        console.log("whenAuthed: resolved");
+        resolve(authed);
+      });
     });
   }
-  onRoleChange = new Observable(observer => {
-    this.roleChangeObserver = observer;
-  });
-  onMenuChange = new Observable(observer => {
-    this.onRoleChange.subscribe((menu: any) => observer.next(this.getMenu()));
-  });
 
-  getMenu() {
-    const menu = [];
-    if (this.isLoggedIn) {
-      menu.push({
-        name: 'Profil',
-        link: "/users/profile"
-      });
-
-
-      if (this.isVolunteer) {
-        menu.push({
-          name: 'Bénévole (visible quand profil rempli)',
-          children: [
-            {
-              name: "Choix d'équipe (todo)",
-            },{
-              name: 'Connaissances ludiques',
-              link: "/volunteers/knowledge",
-            },{
-              name: 'Autre page todo2'
-            },
-          ]
-        });
-      }
-
-
-      menu.push({
-        name: 'Déconnexion',
-        func: () => {
-          this.logout();
-        }
-      });
-    }
-    return menu;
-  }
 }

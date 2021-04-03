@@ -3,19 +3,19 @@
     "users": {
       "$uid": {
         ".read": "auth.uid === $uid",
-        ".write": "auth.uid === $uid",
         "profile": {
+          ".write": "auth.uid === $uid || root.child('admins').hasChild(auth.uid)",
           "firstname": {
-            ".validate": "newData.isString()"
+            ".validate": "newData.isString() && newData.val().length >= 2"
           },
           "lastname": {
-            ".validate": "newData.isString()"
+            ".validate": "newData.isString() && newData.val().length >= 2"
           },
           "mobile": {
             ".validate": "newData.isString() && newData.val().matches(/(\\+|[0-9])[0-9] ?[0-9][0-9] ?[0-9][0-9] ?[0-9][0-9] ?[0-9][0-9]/)"
           },
           "photo": {
-            ".validate": "newData.isString()"
+            ".validate": "newData.isString() && newData.val().length >= 2"
           },
           "years": {
             ".validate": "newData.isString() && newData.val().matches(/([0-9]{4}(, [0-9]{4})*)?/)"
@@ -40,8 +40,20 @@
           },
         },
         "roles": {
-          ".read": "auth.uid === $uid",
-          ".write": "root.child('admins').hasChild(auth.uid)"
+          ".write": "root.child('admins').hasChild(auth.uid)",
+          "admin": {
+            ".validate": "!newData.exists() || newData.val() === true"
+          },
+          "javBoss": {
+            ".validate": "!newData.exists() || newData.val() === true"
+          },
+          "javMember": {
+          	".write": "root.child('users').child(auth.uid).child('roles').hasChild('javBoss')",
+            ".validate": "!newData.exists() || newData.val() === true"
+          },
+          "$other": {
+            ".validate": "false"
+          },
         },
         "$other": {
           ".validate": "false"
@@ -49,7 +61,10 @@
       }
     },
     "admins": {
-      "$uid": {}
+      ".read": "auth !== null",
+      "$uid": {
+        ".write": "auth.uid === $uid && !data.exists()"
+      }
     }
   }
 }

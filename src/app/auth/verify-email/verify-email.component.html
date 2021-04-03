@@ -1,6 +1,6 @@
 <h3>Merci de t'être inscrit !</h3>
-<div *ngIf="authService.user as user">
-  <p class="text-center">Nous avons envoyé un email de confirmation à <strong>{{user.email}}</strong>.</p>
+<div *ngIf="emailToVerify">
+  <p class="text-center">Nous avons envoyé un email de confirmation à <strong>{{emailToVerify}}</strong>.</p>
   <p class="text-center">Il ne te reste plus qu'à le consulter et à cliquer sur le lien de validation.</p>
   <button mat-raised-button color="primary" (click)="authService.sendEmailVerification()">Renvoyer l'email de validation</button>
 </div>
