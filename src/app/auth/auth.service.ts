@@ -4,14 +4,17 @@ import * as _ from 'lodash-es';
 import { User } from  "../classes/user";
 import { AngularFireAuth } from  "@angular/fire/auth";
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   public user: User;
-  onChange: Observable<boolean>;  //True if authed
+  onChangeSubscribers: Subscriber<boolean>[] = [];
+  onChange: Observable<boolean> = new Observable<boolean>(subscriber => {
+    this.onChangeSubscribers.push(subscriber);
+  });  //True if authed
   authed: boolean;
   currentUser: any;
 
@@ -24,11 +27,7 @@ export class AuthService {
     this.auth.authState.subscribe(currentUser => {
       console.log("auth.authState.subscribe called", currentUser)
       this.updateAuthStatus(currentUser);
-    });
-
-    this.onChange = new Observable<boolean>(subscriber => {
-      console.log("authService onChange called")
-      subscriber.next(this.updateAuthStatus(this.currentUser));
+      this.onChangeSubscribers.forEach(subscriber => subscriber.next(this.currentUser));
     });
 
     this.auth.currentUser
@@ -49,27 +48,41 @@ export class AuthService {
         console.log("whenAuthed: email yet to verify");
         this.authed = false;
       }
+      localStorage.setItem("user", JSON.stringify(currentUser));
+      JSON.parse(localStorage.getItem("user"));
     }
     else {
       console.log("deauthed");
       this.authed = false;
+      localStorage.setItem("user", null);
+      JSON.parse(localStorage.getItem("user"));
     }
 
     return this.authed;
   }
 
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<void> {
     try {
       console.log("login called");
+      // const result = await this.auth.setPersistence('local')
+      // .then(() => {
+      //   return this.auth.signInWithEmailAndPassword(email, password);
+      // })
+      // .catch((error) => {
+      //   this.toastr.error(`Erreur de persistence #${error.code}: ${error.message}`);
+      // });
       const result = await this.auth.signInWithEmailAndPassword(email, password);
       console.log("result", result);
+      if (!result) {
+        return;
+      }
       if (!result.user.emailVerified) {
         this.toastr.info("Un email vous a été envoyé. Il faut cliquer sur son lien pour finir l'inscription.");
         return;
       }
       //else
-      this.updateAuthStatus(await this.auth.currentUser)
+      this.updateAuthStatus(await this.auth.currentUser);
       this.router.navigate(['']);
     } catch(e) {
       if (e.code === "auth/user-not-found") {
@@ -83,13 +96,15 @@ export class AuthService {
   }
 
   async logout() {
-    this.auth.signOut();
-    this.router.navigate(['login']);
+    localStorage.setItem("user", null);
+    await this.auth.signOut();
+    setTimeout(() => this.router.navigate(['/login']));
   }
 
   async register(email: string, password: string) {
     try {
       await this.auth.createUserWithEmailAndPassword(email, password);
+      await this.sendEmailVerification();
       this.router.navigate(['verify-email']);
     } catch(e) {
       if (e.code === "auth/email-already-in-use") {
@@ -103,7 +118,7 @@ export class AuthService {
 
   async sendEmailVerification() {
     await (await this.auth.currentUser).sendEmailVerification();
-    this.toastr.success('Email de verification renvoyé !');
+    this.toastr.success('Email de verification envoyé !');
   }
 
   async sendPasswordResetEmail(passwordResetEmail: string) {
@@ -112,6 +127,11 @@ export class AuthService {
   }
 
   get isVerifiedUser(): Promise<boolean> {
+
+    // const user = JSON.parse(localStorage.getItem('user'));
+    // return (user !== null && user.emailVerified !== false) ? true : false;
+    //return new Promise<boolean>(resolve => resolve(true));
+
     return (async () => {
       console.log("isVerifiedUser");
       if (!await this.onAuth()) {
@@ -119,19 +139,14 @@ export class AuthService {
         return false;
       }
       //else
-      return (await this.auth.currentUser).emailVerified !== false;
-    })();
-  }
-
-  get isLoggedIn(): Promise<boolean> { //TODO1 replace by isUser in roles.service
-    return (async () => {
-      const user = await this.auth.currentUser;
-      return (user !== null && user.emailVerified !== false) ? true : false;
+      const currentUser = await this.auth.currentUser;
+      console.log("currentUser in isVerifiedUser", currentUser);
+      return currentUser?.emailVerified !== false;
     })();
   }
 
   async emailToVerify(): Promise<string> {
-    return (await this.auth.currentUser).email;
+    return (await this.auth.currentUser)?.email || "";
   }
 
   get uid(): Promise<string> {
@@ -143,13 +158,29 @@ export class AuthService {
 
   async onAuth(): Promise<boolean> {
     if (this.authed !== null) {
+      console.log("this.authed onAuth", this.authed);
       return this.authed;
     }
-    console.log("whenAuthed: registering");
+    console.log("onAuth: registering");
     return new Promise<boolean>(resolve => {
       this.onChange.subscribe((authed) => {
-        console.log("whenAuthed: resolved");
+        console.log("onAuth: resolved", authed);
         resolve(authed);
+      });
+    });
+  }
+
+  async waitForValidAuth(): Promise<boolean> {
+    if (this.authed) {
+      return this.authed;
+    }
+    console.log("onValidAuth: registering");
+    return new Promise<boolean>(resolve => {
+      this.onChange.subscribe((authed) => {
+        console.log("onValidAuth: resolved", authed);
+        if (authed) {
+          resolve(true);
+        }
       });
     });
   }

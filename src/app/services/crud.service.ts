@@ -23,10 +23,10 @@ export interface Student {
 })
 
 export class CrudService {
-  profilesRef: AngularFireList<any>;
+  usersRef: AngularFireList<any>;
   profileRef: AngularFireObject<any>;
   snapshot: DatabaseReference;
-  userObserver: Subscriber<DBUser>;
+  userSubscribers: Subscriber<DBUser>[] = [];
   user: DBUser;
 
 
@@ -83,25 +83,24 @@ export class CrudService {
       return;
     }
     console.log("uid in getUser", uid);
-    if (this.snapshot) {
+    if (this.user) {
       return this.user;
     }
     //else
-    this.snapshot = await this.db.database.ref('users/' + uid);
-    return new Promise<DBUser>(resolve => {
+
+    if (!this.snapshot) {
+      this.snapshot = this.db.database.ref('users/' + uid);
       this.snapshot.on('value', (snapshot) => {
         this.user = snapshot.exists() && snapshot.val() || {};
         _.defaults(this.user, {roles: {}});
-        this.userObserver?.next(this.user);
-        resolve(this.user);
+        this.userSubscribers.forEach(subscriber => subscriber.next(this.user));
       });
-    });
+    }
+    return new Promise<DBUser>(resolve => this.onUserChange.subscribe(user => resolve(user)));
   }
 
-
-  //TODO1 is userObserver crushed each time onUserChange is called?
-  onUserChange = new Observable<DBUser>(observer => {
-    this.userObserver = observer;
+  onUserChange = new Observable<DBUser>(subscriber => {
+    this.userSubscribers.push(subscriber);
   });
 
 
@@ -112,9 +111,9 @@ export class CrudService {
 
 
 
-  GetStudentsList() {
-    this.profilesRef = this.db.list('users');
-    return this.profilesRef;
+  getUserList() {
+    this.usersRef = this.db.list('users');
+    return this.usersRef;
   }
 
 

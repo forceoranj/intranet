@@ -46,12 +46,14 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AngularFireModule } from "@angular/fire";
 import { AngularFireAuthModule } from "@angular/fire/auth";
-import { AngularFireAuth } from  "@angular/fire/auth";
+import { AngularFireStorageModule } from  "@angular/fire/storage";
+import { AngularFireDatabaseModule, USE_EMULATOR as FIREDATABASE_EMULATOR_CONFIGURATION } from  "@angular/fire/database";
 import { ToastrModule } from 'ngx-toastr';
 
 import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
+import { AuthGuard } from './auth/auth.guard';
 
 
 import { LoginComponent } from './auth/login/login.component';
@@ -115,8 +117,10 @@ const materialModules = [
     AppRoutingModule,
     HttpClientModule,
     ...materialModules,
-    AngularFireModule.initializeApp(firebaseConfig),
+    AngularFireModule,//.initializeApp(firebaseConfig),
     AngularFireAuthModule,
+    AngularFireStorageModule,
+    AngularFireDatabaseModule,
 
     // The HttpClientInMemoryWebApiModule module intercepts HTTP requests
     // and returns simulated server responses.
@@ -147,12 +151,19 @@ const materialModules = [
     ForgotPasswordComponent,
     VerifyEmailComponent,
   ],
+  providers: [
+    AuthGuard,
+    {
+      provide: FIREDATABASE_EMULATOR_CONFIGURATION,
+      useValue: environment.firebaseEmulator && ['localhost', 9000],
+    },
+  ],
   bootstrap: [ AppComponent ]
 })
 export class AppModule {
-  constructor(private _angularFireAuth: AngularFireAuth) {
-    if (environment.firebaseEmulator) {
-      this._angularFireAuth.useEmulator('http://localhost:9099');
-    }
-  }
+  // constructor(private _angularFireAuth: AngularFireAuth) {
+  //   if (environment.firebaseEmulator) {
+  //     _angularFireAuth.useEmulator('http://localhost:9099');
+  //   }
+  // }
 }

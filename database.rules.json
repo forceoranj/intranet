@@ -1,5 +1,6 @@
 {
   "rules": {
+    ".read": "root.child('admins').hasChild(auth.uid)",
     "users": {
       "$uid": {
         ".read": "auth.uid === $uid",

@@ -35,30 +35,33 @@ export class ProfileComponent {
     public afs: AngularFirestore,
     public authService: AuthService,
   ) {
+    this.createForm();
     this.activatedRoute.data.subscribe(async (data: {user: DBUser}) => {
-      this.createForm(data.user.profile);
-      this.isAdmin = data.user.roles.admin;
+      console.log("activatedRoute.data in profile.component", data);
+      this.setForm(data.user?.profile);
+      this.isAdmin = data.user?.roles.admin;
       this.canBecomeAdmin = await this.crudService.getUser() && await this.crudService.getAdminUid() === "";
       this.onChanges();
     });
   }
 
-  createForm(profile: Profile): void {
-    if (!this.profileForm) {
-      this.profileForm = this.fb.group({
-        firstname: ['', [Validators.required, Validators.minLength(2)]],
-        lastname: ['', [Validators.required, Validators.minLength(2)]],
-        mobile: ['', [Validators.required, Validators.pattern("(\\+|[0-9])[0-9] ?[0-9][0-9] ?[0-9][0-9] ?[0-9][0-9] ?[0-9][0-9]")]],
-        photo: ['', [Validators.required]],
-        english: ['', []],
-        spanish: ['', []],
-        german: ['', []],
-        italian: ['', []],
-        lsf: ['', []],
-        years: ['', []],
-        adult: ['', [Validators.required, Validators.requiredTrue]],
-      });
-    }
+  createForm(): void {
+    this.profileForm = this.fb.group({
+      firstname: ['', [Validators.required, Validators.minLength(2)]],
+      lastname: ['', [Validators.required, Validators.minLength(2)]],
+      mobile: ['', [Validators.required, Validators.pattern("(\\+|[0-9])[0-9] ?[0-9][0-9] ?[0-9][0-9] ?[0-9][0-9] ?[0-9][0-9]")]],
+      photo: ['', [Validators.required]],
+      english: ['', []],
+      spanish: ['', []],
+      german: ['', []],
+      italian: ['', []],
+      lsf: ['', []],
+      years: ['', []],
+      adult: ['', [Validators.required, Validators.requiredTrue]],
+    });
+  }
+
+  setForm(profile: Profile): void {
 
     console.log("profile in setForm", JSON.stringify(profile));
     const defaultProfile = new FormProfile();

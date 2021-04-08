@@ -10,6 +10,7 @@ export const environment = {
 export const firebaseConfig = {
   apiKey: "apikey123",
   authDomain: "localhost:9099",
+  authUrl: "http://localhost:9099",
   databaseURL: "http://localhost:9000/?ns=forceoranj",
   projectId: "forceoranj",
   storageBucket: "forceoranj.appspot.com",

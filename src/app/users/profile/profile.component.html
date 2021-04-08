@@ -44,13 +44,17 @@
   <mat-checkbox formControlName="adult">Majeur au 26 juin 2021</mat-checkbox>
   <br><br>
 
-    <button mat-button matSuffix tabindex="-1" *ngIf="!isAdmin" (click)="becomeAdmin()">
-      Become the admin
-    </button>
-
   <span *ngIf="profileForm.invalid">Il manque encore certaines informations...</span>
   <span *ngIf="!profileForm.invalid">
     C'est bon on a toutes les infos !<br>
     Tu peux maintenant procéder au <a routerLink="/members/team-choice">choix d'équipe</a><br>
   </span>
+
+
+  <ng-container *ngIf="!isAdmin">
+    <br><br>
+    <button mat-raised-button color="primary" matSuffix tabindex="-1" (click)="becomeAdmin()">
+      Become the admin
+    </button>
+  </ng-container>
 </form>
